@@ -44,6 +44,27 @@ function initDb() {
   const database = getDb();
 
   database.exec(`
+    CREATE TABLE IF NOT EXISTS operators (
+      id TEXT PRIMARY KEY,
+      username TEXT UNIQUE NOT NULL,
+      email TEXT UNIQUE NOT NULL,
+      password_hash TEXT NOT NULL,
+      role TEXT NOT NULL DEFAULT 'bookmaker',
+      is_active INTEGER NOT NULL DEFAULT 1,
+      created_at TEXT NOT NULL DEFAULT (datetime('now')),
+      updated_at TEXT NOT NULL DEFAULT (datetime('now'))
+    );
+
+    CREATE TABLE IF NOT EXISTS wallets (
+      id TEXT PRIMARY KEY,
+      name TEXT NOT NULL,
+      phone TEXT,
+      balance REAL NOT NULL DEFAULT 0.00,
+      is_active INTEGER NOT NULL DEFAULT 1,
+      created_at TEXT NOT NULL DEFAULT (datetime('now')),
+      updated_at TEXT NOT NULL DEFAULT (datetime('now'))
+    );
+
     CREATE TABLE IF NOT EXISTS countries (
       id TEXT PRIMARY KEY,
       name TEXT UNIQUE NOT NULL,
@@ -64,52 +85,38 @@ function initDb() {
       FOREIGN KEY (country_id) REFERENCES countries(id) ON DELETE CASCADE
     );
 
-    CREATE TABLE IF NOT EXISTS users (
+    CREATE TABLE IF NOT EXISTS sports (
       id TEXT PRIMARY KEY,
-      username TEXT UNIQUE NOT NULL,
-      email TEXT UNIQUE NOT NULL,
-      password_hash TEXT NOT NULL,
-      role TEXT NOT NULL DEFAULT 'punter',
-      wallet_balance REAL NOT NULL DEFAULT 0.00,
-      is_active INTEGER NOT NULL DEFAULT 1,
-      created_at TEXT NOT NULL DEFAULT (datetime('now')),
-      updated_at TEXT NOT NULL DEFAULT (datetime('now'))
+      name TEXT UNIQUE NOT NULL,
+      icon TEXT NOT NULL DEFAULT '🏆',
+      is_active INTEGER NOT NULL DEFAULT 1
     );
 
-    CREATE TABLE IF NOT EXISTS race_meetings (
+    CREATE TABLE IF NOT EXISTS events (
       id TEXT PRIMARY KEY,
-      course_id TEXT NOT NULL,
-      meeting_date TEXT NOT NULL,
-      meeting_time TEXT NOT NULL,
-      status TEXT NOT NULL DEFAULT 'upcoming',
+      sport_id TEXT NOT NULL,
+      country_id TEXT,
+      course_id TEXT,
+      event_name TEXT NOT NULL,
+      event_date TEXT NOT NULL,
+      event_time TEXT NOT NULL,
+      venue TEXT,
+      status TEXT NOT NULL DEFAULT 'open',
+      closes_at TEXT,
+      result_selection_id TEXT,
       created_by TEXT NOT NULL,
       created_at TEXT NOT NULL DEFAULT (datetime('now')),
       updated_at TEXT NOT NULL DEFAULT (datetime('now')),
-      FOREIGN KEY (course_id) REFERENCES courses(id),
-      FOREIGN KEY (created_by) REFERENCES users(id)
+      FOREIGN KEY (sport_id) REFERENCES sports(id),
+      FOREIGN KEY (country_id) REFERENCES countries(id),
+      FOREIGN KEY (course_id) REFERENCES courses(id)
     );
 
-    CREATE TABLE IF NOT EXISTS races (
+    CREATE TABLE IF NOT EXISTS selections (
       id TEXT PRIMARY KEY,
-      meeting_id TEXT NOT NULL,
-      race_number INTEGER NOT NULL,
-      race_name TEXT NOT NULL,
-      distance TEXT,
-      race_class TEXT,
-      prize_money TEXT,
-      closes_at TEXT,
-      status TEXT NOT NULL DEFAULT 'open',
-      deduction_applied REAL NOT NULL DEFAULT 0.00,
-      result_horse_id TEXT,
-      created_at TEXT NOT NULL DEFAULT (datetime('now')),
-      updated_at TEXT NOT NULL DEFAULT (datetime('now')),
-      FOREIGN KEY (meeting_id) REFERENCES race_meetings(id) ON DELETE CASCADE
-    );
-
-    CREATE TABLE IF NOT EXISTS horses (
-      id TEXT PRIMARY KEY,
-      race_id TEXT NOT NULL,
-      horse_name TEXT NOT NULL,
+      event_id TEXT NOT NULL,
+      name TEXT NOT NULL,
+      sub_info TEXT,
       barrier_number INTEGER,
       jockey TEXT,
       trainer TEXT,
@@ -117,19 +124,21 @@ function initDb() {
       age INTEGER,
       form TEXT,
       colour TEXT,
-      odds REAL NOT NULL,
+      odds REAL NOT NULL DEFAULT 2.00,
+      opening_odds REAL NOT NULL DEFAULT 2.00,
       status TEXT NOT NULL DEFAULT 'active',
       scratch_deduction REAL DEFAULT 0.00,
       scratched_at TEXT,
-      result_position INTEGER,
+      is_winner INTEGER DEFAULT 0,
       created_at TEXT NOT NULL DEFAULT (datetime('now')),
       updated_at TEXT NOT NULL DEFAULT (datetime('now')),
-      FOREIGN KEY (race_id) REFERENCES races(id) ON DELETE CASCADE
+      FOREIGN KEY (event_id) REFERENCES events(id) ON DELETE CASCADE
     );
 
     CREATE TABLE IF NOT EXISTS betslips (
       id TEXT PRIMARY KEY,
-      user_id TEXT NOT NULL,
+      wallet_id TEXT NOT NULL,
+      operator_id TEXT NOT NULL,
       slip_type TEXT NOT NULL DEFAULT 'single',
       status TEXT NOT NULL DEFAULT 'pending',
       total_stake REAL NOT NULL DEFAULT 0.00,
@@ -138,28 +147,30 @@ function initDb() {
       settled_at TEXT,
       created_at TEXT NOT NULL DEFAULT (datetime('now')),
       updated_at TEXT NOT NULL DEFAULT (datetime('now')),
-      FOREIGN KEY (user_id) REFERENCES users(id)
+      FOREIGN KEY (wallet_id) REFERENCES wallets(id),
+      FOREIGN KEY (operator_id) REFERENCES operators(id)
     );
 
-    CREATE TABLE IF NOT EXISTS betslip_selections (
+    CREATE TABLE IF NOT EXISTS betslip_legs (
       id TEXT PRIMARY KEY,
       betslip_id TEXT NOT NULL,
-      horse_id TEXT NOT NULL,
-      race_id TEXT NOT NULL,
+      selection_id TEXT NOT NULL,
+      event_id TEXT NOT NULL,
       odds_at_time REAL NOT NULL,
       result TEXT DEFAULT 'pending',
       FOREIGN KEY (betslip_id) REFERENCES betslips(id) ON DELETE CASCADE,
-      FOREIGN KEY (horse_id) REFERENCES horses(id),
-      FOREIGN KEY (race_id) REFERENCES races(id)
+      FOREIGN KEY (selection_id) REFERENCES selections(id),
+      FOREIGN KEY (event_id) REFERENCES events(id)
     );
 
     CREATE TABLE IF NOT EXISTS bets (
       id TEXT PRIMARY KEY,
-      user_id TEXT NOT NULL,
+      wallet_id TEXT NOT NULL,
+      operator_id TEXT NOT NULL,
       betslip_id TEXT NOT NULL,
-      horse_id TEXT NOT NULL,
-      race_id TEXT NOT NULL,
-      bet_type TEXT NOT NULL DEFAULT 'win',
+      selection_id TEXT NOT NULL,
+      event_id TEXT NOT NULL,
+      bet_type TEXT NOT NULL DEFAULT 'single',
       stake REAL NOT NULL,
       odds_at_time REAL NOT NULL,
       potential_return REAL NOT NULL,
@@ -168,15 +179,17 @@ function initDb() {
       status TEXT NOT NULL DEFAULT 'pending',
       settled_at TEXT,
       created_at TEXT NOT NULL DEFAULT (datetime('now')),
-      FOREIGN KEY (user_id) REFERENCES users(id),
+      FOREIGN KEY (wallet_id) REFERENCES wallets(id),
+      FOREIGN KEY (operator_id) REFERENCES operators(id),
       FOREIGN KEY (betslip_id) REFERENCES betslips(id),
-      FOREIGN KEY (horse_id) REFERENCES horses(id),
-      FOREIGN KEY (race_id) REFERENCES races(id)
+      FOREIGN KEY (selection_id) REFERENCES selections(id),
+      FOREIGN KEY (event_id) REFERENCES events(id)
     );
 
     CREATE TABLE IF NOT EXISTS transactions (
       id TEXT PRIMARY KEY,
-      user_id TEXT NOT NULL,
+      wallet_id TEXT NOT NULL,
+      operator_id TEXT,
       type TEXT NOT NULL,
       amount REAL NOT NULL,
       balance_before REAL NOT NULL,
@@ -184,30 +197,42 @@ function initDb() {
       description TEXT,
       reference_id TEXT,
       created_at TEXT NOT NULL DEFAULT (datetime('now')),
-      FOREIGN KEY (user_id) REFERENCES users(id)
+      FOREIGN KEY (wallet_id) REFERENCES wallets(id)
     );
 
-    CREATE INDEX IF NOT EXISTS idx_bets_user ON bets(user_id);
-    CREATE INDEX IF NOT EXISTS idx_bets_race ON bets(race_id);
-    CREATE INDEX IF NOT EXISTS idx_bets_horse ON bets(horse_id);
-    CREATE INDEX IF NOT EXISTS idx_horses_race ON horses(race_id);
-    CREATE INDEX IF NOT EXISTS idx_races_meeting ON races(meeting_id);
-    CREATE INDEX IF NOT EXISTS idx_transactions_user ON transactions(user_id);
-    CREATE INDEX IF NOT EXISTS idx_courses_country ON courses(country_id);
-    CREATE INDEX IF NOT EXISTS idx_meetings_course ON race_meetings(course_id);
+    CREATE INDEX IF NOT EXISTS idx_bets_wallet     ON bets(wallet_id);
+    CREATE INDEX IF NOT EXISTS idx_bets_event      ON bets(event_id);
+    CREATE INDEX IF NOT EXISTS idx_bets_selection  ON bets(selection_id);
+    CREATE INDEX IF NOT EXISTS idx_bets_status     ON bets(status);
+    CREATE INDEX IF NOT EXISTS idx_selections_event ON selections(event_id);
+    CREATE INDEX IF NOT EXISTS idx_events_sport    ON events(sport_id);
+    CREATE INDEX IF NOT EXISTS idx_events_status   ON events(status);
+    CREATE INDEX IF NOT EXISTS idx_legs_betslip    ON betslip_legs(betslip_id);
   `);
 
+  // Seed sports
+  const sportsList = [
+    { id: 'sport_hr',   name: 'Horse Racing', icon: '🏇' },
+    { id: 'sport_fb',   name: 'Football',     icon: '⚽' },
+    { id: 'sport_cr',   name: 'Cricket',      icon: '🏏' },
+    { id: 'sport_rb',   name: 'Rugby',        icon: '🏉' },
+    { id: 'sport_tn',   name: 'Tennis',       icon: '🎾' },
+    { id: 'sport_bx',   name: 'Boxing',       icon: '🥊' },
+  ];
+  for (const s of sportsList) {
+    database.prepare('INSERT OR IGNORE INTO sports (id,name,icon) VALUES (?,?,?)').run(s.id, s.name, s.icon);
+  }
+
+  // Seed super admin
   const adminEmail    = process.env.ADMIN_EMAIL    || 'admin@racingbet.com';
   const adminPassword = process.env.ADMIN_PASSWORD || 'Admin@123456';
-  const adminName     = process.env.ADMIN_NAME     || 'System Owner';
-
-  const existing = database.prepare('SELECT id FROM users WHERE email = ?').get(adminEmail);
+  const adminName     = process.env.ADMIN_NAME     || 'superadmin';
+  const existing = database.prepare('SELECT id FROM operators WHERE email=?').get(adminEmail);
   if (!existing) {
     const { v4: uuidv4 } = require('uuid');
     const hash = bcrypt.hashSync(adminPassword, 12);
-    database.prepare(`INSERT INTO users (id,username,email,password_hash,role,wallet_balance) VALUES (?,?,?,?,'admin',999999.00)`)
-      .run(uuidv4(), adminName.replace(/\s+/g,'_').toLowerCase(), adminEmail, hash);
-    console.log('Admin seeded:', adminEmail);
+    database.prepare('INSERT INTO operators (id,username,email,password_hash,role) VALUES (?,?,?,?,?)').run(uuidv4(), adminName, adminEmail, hash, 'super_admin');
+    console.log('Super admin seeded:', adminEmail);
   }
 
   console.log('Database ready');

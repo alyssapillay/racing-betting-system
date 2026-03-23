@@ -1,7 +1,7 @@
 {
-  "name": "racing-betting-system",
-  "version": "2.0.0",
-  "description": "RaceVault — Horse Racing Betting Management System",
+  "name": "racevault-bookmaker",
+  "version": "5.0.0",
+  "description": "RaceVault Multi-Sport Bookmaker Management System",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
@@ -17,10 +17,6 @@
     "jsonwebtoken": "^9.0.2",
     "uuid": "^9.0.0"
   },
-  "devDependencies": {
-    "nodemon": "^3.0.3"
-  },
-  "engines": {
-    "node": ">=22.0.0"
-  }
+  "devDependencies": { "nodemon": "^3.0.3" },
+  "engines": { "node": ">=22.0.0" }
 }
