@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>RaceVault — Betting Management</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/css/style.css" />
+</head>
+<body>
+
+<div id="login-screen" class="login-screen">
+  <div class="login-bg"><div class="login-glow"></div><div class="track-lines"></div></div>
+  <div class="login-card">
+    <div class="login-logo">
+      <span class="logo-mark">🏇</span>
+      <div><div class="logo-name">RaceVault</div><div class="logo-sub">Betting Management System</div></div>
+    </div>
+    <form id="login-form" class="login-form">
+      <div class="form-group"><label>Email Address</label><input type="email" id="login-email" placeholder="admin@racingbet.com" required /></div>
+      <div class="form-group"><label>Password</label><input type="password" id="login-password" placeholder="••••••••" required /></div>
+      <div id="login-error" class="alert alert-error hidden"></div>
+      <button type="submit" class="btn btn-primary btn-full" id="login-btn"><span>Sign In</span></button>
+    </form>
+    <div style="margin-top:16px;padding:12px;background:rgba(212,160,23,0.06);border:1px solid rgba(212,160,23,0.15);border-radius:8px;font-size:12px;color:var(--text-muted)">
+      <strong style="color:var(--gold)">Demo accounts</strong> (password: <code style="color:var(--text-primary)">Demo@1234</code>)<br>
+      john@demo.com · sarah@demo.com · mike@demo.com
+    </div>
+  </div>
+</div>
+
+<div id="app" class="app hidden">
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <span class="logo-mark">🏇</span>
+      <div><div class="brand-name">RaceVault</div><div class="brand-sub">Management System</div></div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-section-label">Overview</div>
+      <a class="nav-item active" data-page="dashboard">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>Dashboard
+      </a>
+      <div class="nav-section-label admin-only">Race Management</div>
+      <a class="nav-item admin-only" data-page="countries">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 010 20M12 2a15.3 15.3 0 000 20"/></svg>Countries & Courses
+      </a>
+      <a class="nav-item admin-only" data-page="meetings">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>Meetings
+      </a>
+      <a class="nav-item admin-only" data-page="races">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 17l3-8 4 6 3-4 4 6"/><circle cx="19" cy="7" r="2"/></svg>Races & Horses
+      </a>
+      <div class="nav-section-label">Betting</div>
+      <a class="nav-item" data-page="betslip">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/><line x1="9" y1="12" x2="15" y2="12"/></svg>Bet Slip
+        <span id="slip-badge" class="badge hidden">0</span>
+      </a>
+      <a class="nav-item" data-page="mybets">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>My Bets
+      </a>
+      <div class="nav-section-label admin-only">Admin</div>
+      <a class="nav-item admin-only" data-page="users">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>Users
+      </a>
+      <a class="nav-item admin-only" data-page="reports">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>Reports
+      </a>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="user-pill">
+        <div class="user-avatar" id="sidebar-avatar">A</div>
+        <div class="user-info"><div id="sidebar-username">Loading...</div><div id="sidebar-role">—</div></div>
+      </div>
+      <div class="wallet-display"><span>💰</span><span id="sidebar-balance">R 0.00</span></div>
+      <button class="btn btn-ghost btn-sm" id="logout-btn">Sign Out</button>
+    </div>
+  </aside>
+
+  <main class="main-content">
+    <div class="topbar">
+      <div class="topbar-title" id="page-title">Dashboard</div>
+      <div class="topbar-actions"><div class="clock" id="clock"></div></div>
+    </div>
+    <div id="page-dashboard"  class="page active"></div>
+    <div id="page-countries"  class="page"></div>
+    <div id="page-meetings"   class="page"></div>
+    <div id="page-races"      class="page"></div>
+    <div id="page-betslip"    class="page"></div>
+    <div id="page-mybets"     class="page"></div>
+    <div id="page-users"      class="page"></div>
+    <div id="page-reports"    class="page"></div>
+  </main>
+</div>
+
+<div id="modal-overlay" class="modal-overlay hidden">
+  <div class="modal" id="modal">
+    <div class="modal-header"><h3 id="modal-title"></h3><button class="modal-close" id="modal-close">✕</button></div>
+    <div class="modal-body" id="modal-body"></div>
+  </div>
+</div>
+<div id="toast-container" class="toast-container"></div>
+
+<script src="/js/api.js"></script>
+<script src="/js/utils.js"></script>
+<script src="/js/betslip.js"></script>
+<script src="/js/pages.js"></script>
+<script src="/js/app.js"></script>
+</body>
+</html>
