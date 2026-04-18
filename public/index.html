@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no"/>
+  <meta name="apple-mobile-web-app-capable" content="yes"/>
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+  <meta name="theme-color" content="#111318"/>
+  <title>Special Bet</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="/css/style.css"/>
+</head>
+<body>
+
+<!-- ── LOGIN ─────────────────────────────────────────── -->
+<div id="login-screen" class="login-screen">
+  <div class="login-bg"><div class="login-glow"></div><div class="track-lines"></div></div>
+  <div class="login-card">
+    <div class="login-logo">
+      <span class="logo-mark">🏇</span>
+      <div><div class="logo-name">Special Bet</div><div class="logo-sub">Betting Management</div></div>
+    </div>
+    <form id="login-form" class="login-form">
+      <div class="form-group"><label>Email</label><input type="email" id="login-email" placeholder="admin@racingbet.com" autocomplete="email" required/></div>
+      <div class="form-group"><label>Password</label><input type="password" id="login-password" placeholder="••••••••" autocomplete="current-password" required/></div>
+      <div id="login-error" class="alert alert-error hidden"></div>
+      <button type="submit" class="btn btn-primary btn-full" id="login-btn"><span>Sign In</span></button>
+    </form>
+    <div style="margin-top:14px;padding:12px;background:rgba(212,160,23,0.06);border:1px solid rgba(212,160,23,0.15);border-radius:8px;font-size:12px;color:var(--text-muted)">
+      <strong style="color:var(--gold)">Logins</strong><br>
+      Super Admin: <code style="color:var(--text-primary)">admin@racingbet.com</code> / <code>Admin@123456</code><br>
+      Bookmaker: <code style="color:var(--text-primary)">bookmaker@racingbet.com</code> / <code>Bookmaker@123</code>
+    </div>
+  </div>
+</div>
+
+<!-- ── APP ───────────────────────────────────────────── -->
+<div id="app" class="app hidden">
+
+  <!-- Mobile Top Bar -->
+  <div class="mobile-topbar">
+    <div class="mobile-brand">🏇 Special Bet</div>
+    <button class="mobile-menu-btn" id="mobile-menu-btn" aria-label="Menu">☰</button>
+  </div>
+
+  <!-- Sidebar Overlay (mobile) -->
+  <div class="sidebar-overlay" id="sidebar-overlay"></div>
+
+  <!-- Sidebar -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <span class="logo-mark">🏇</span>
+      <div><div class="brand-name">Special Bet</div><div class="brand-sub">Betting Management</div></div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-section-label">Overview</div>
+      <a class="nav-item active" data-page="dashboard">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>Dashboard
+      </a>
+      <div class="nav-section-label">Betting</div>
+      <a class="nav-item" data-page="betslip">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/></svg>Bet Slip
+        <span id="slip-badge" class="badge hidden">0</span>
+      </a>
+      <a class="nav-item" data-page="bets">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>Bet History
+      </a>
+      <div class="nav-section-label bookmaker-only">Management</div>
+      <a class="nav-item bookmaker-only" data-page="wallets">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>Wallets
+      </a>
+      <a class="nav-item bookmaker-only" data-page="events">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>Events
+      </a>
+      <div class="nav-section-label super-admin-only">Admin</div>
+      <a class="nav-item super-admin-only" data-page="operators">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>Operators
+      </a>
+      <a class="nav-item super-admin-only" data-page="countries">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 010 20M12 2a15.3 15.3 0 000 20"/></svg>Countries
+      </a>
+      <a class="nav-item super-admin-only" data-page="reports">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>Reports
+      </a>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="user-pill">
+        <div class="user-avatar" id="sidebar-avatar">A</div>
+        <div class="user-info"><div id="sidebar-username">Loading...</div><div id="sidebar-role">—</div></div>
+      </div>
+      <button class="btn btn-ghost btn-sm" id="logout-btn">Sign Out</button>
+    </div>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="main-content">
+    <div class="topbar">
+      <div class="topbar-title" id="page-title">Dashboard</div>
+      <div class="topbar-actions"><div class="clock" id="clock"></div></div>
+    </div>
+    <div id="page-dashboard"  class="page active"></div>
+    <div id="page-betslip"    class="page"></div>
+    <div id="page-bets"       class="page"></div>
+    <div id="page-wallets"    class="page"></div>
+    <div id="page-events"     class="page"></div>
+    <div id="page-operators"  class="page"></div>
+    <div id="page-countries"  class="page"></div>
+    <div id="page-reports"    class="page"></div>
+  </main>
+
+  <!-- Mobile Bottom Nav -->
+  <nav class="mobile-bottom-nav" id="mobile-bottom-nav">
+    <div class="mobile-nav-inner">
+      <div class="mobile-nav-item active" data-page="dashboard">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+        <span>Home</span>
+      </div>
+      <div class="mobile-nav-item" data-page="betslip">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/></svg>
+        <span>Bet Slip</span>
+        <span class="mobile-nav-badge hidden" id="mobile-slip-badge">0</span>
+      </div>
+      <div class="mobile-nav-item bookmaker-only" data-page="wallets">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
+        <span>Wallets</span>
+      </div>
+      <div class="mobile-nav-item bookmaker-only" data-page="events">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        <span>Events</span>
+      </div>
+      <div class="mobile-nav-item super-admin-only" data-page="reports">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+        <span>Reports</span>
+      </div>
+      <div class="mobile-nav-item" data-page="bets">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+        <span>History</span>
+      </div>
+    </div>
+  </nav>
+
+</div>
+
+<!-- Modal -->
+<div id="modal-overlay" class="modal-overlay hidden">
+  <div class="modal" id="modal">
+    <div class="modal-header"><h3 id="modal-title"></h3><button class="modal-close" id="modal-close">✕</button></div>
+    <div class="modal-body" id="modal-body"></div>
+  </div>
+</div>
+<div id="toast-container" class="toast-container"></div>
+
+<script src="/js/api.js"></script>
+<script src="/js/utils.js"></script>
+<script src="/js/betslip.js"></script>
+<script src="/js/pages.js"></script>
+<script src="/js/app.js"></script>
+</body>
+</html>
